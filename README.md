@@ -6,7 +6,7 @@ NextStep SA is a mobile-friendly, low-data web app that helps young South Africa
 
 It is designed to complement discovery platforms such as SAYouth.mobi by supporting the step between *finding* an opportunity and *submitting a complete application*.
 
-> **Live demo:** [add your Vercel link here]
+> **Live demo:** [https://nextstep-sa-ten.vercel.app/]
 > **Status:** working prototype for the Youth Employment and Digital Entrepreneurship challenge. Listings in the demo are samples until real, checked adverts are added.
 
 ## Why this matters
