@@ -1,0 +1,15 @@
+{
+  "name": "NextStep SA",
+  "short_name": "NextStep",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#FBF6EE",
+  "theme_color": "#0F4D36",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
