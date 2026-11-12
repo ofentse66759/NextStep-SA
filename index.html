@@ -44,7 +44,7 @@ let S={plans:[],proof:[],wallet:[],ledger:[],chk:[],mood:[],goal:0,low:0,rep:[]}
 try{Object.assign(S,JSON.parse(localStorage.ns||'{}'))}catch(e){}
 let D2={};try{D2=JSON.parse(localStorage.nsX||'{}')}catch(e){}
 const XN=665;
-const ORG={name:'[Team or organisation name]',address:'[address]',officer:'[Information Officer name]',email:'[contact email]',region:'[data region]'};/* Fill these in: they appear in the Privacy notice */
+const ORG={name:'[NextStep SA NPC]',address:'[Pretoria, South Africa]',officer:'[Ofentse Rasekhula]',email:'[privacy@nextstep.example]',region:'[AWS eu-west-1 (Ireland]'};/* Fill these in: they appear in the Privacy notice */
 /* ===== BACKEND CONFIG: paste your Supabase project URL and anon (public) key. Never put the service_role key here. ===== */
 const SB_URL='https://pjegcgrbudolgqbtusgh.supabase.co',SB_KEY='sb_publishable_1XDWVR8BnTdNKBxF7o7bpg_Qg1wTryZ';
 var U=null,sb=null,pt,SENT='',AM=0,ADM=0,FTY='All',FQ='',FPR='';try{if(window.supabase&&!SB_URL.startsWith('YOUR'))sb=supabase.createClient(SB_URL,SB_KEY,{auth:{flowType:'pkce'}})}catch(e){}
