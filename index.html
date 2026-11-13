@@ -40,8 +40,9 @@ button,.btn{cursor:pointer;text-decoration:none;display:inline-block;font-weight
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let S={plans:[],proof:[],wallet:[],ledger:[],chk:[],mood:[],goal:0,low:0,rep:[]};
+let S={plans:[],proof:[],wallet:[],ledger:[],chk:[],mood:[],goal:0,low:0,rep:[],save:{n:'',t:0,c:0}};
 try{Object.assign(S,JSON.parse(localStorage.ns||'{}'))}catch(e){}
+if(!S.save) S.save={n:'',t:0,c:0};
 let D2={};try{D2=JSON.parse(localStorage.nsX||'{}')}catch(e){}
 const XN=665;
 const ORG={name:'NextStep SA (Demo Project)',address:'Cape Town, South Africa',officer:'Project Lead',email:'privacy@nextstep.example',region:'AWS eu-west-1 (Ireland)'};
@@ -145,6 +146,7 @@ chk(i){S.chk[i]=!S.chk[i];save()},
 mood(v){S.mood.push(v);save();T(v<3?'Thanks for checking in. Talk to someone on Help & Safety if you need to.':'Good to hear. Keep going!')},
 ussd(k){const p=S.plans.map(x=>R(x)).sort((a,b)=>a.d-b.d)[0],q=S.plans.slice().sort((a,b)=>R(a).d-R(b).d)[0];const o={1:q?`${q.title}: ${R(q).d} days left, ${R(q).pct}% ready, ${R(q).g.length} gaps.`:'No plans yet.',2:q&&R(q).g[0]?`Today: ${R(q).g[0].n} (${R(q).g[0].d} day/s).`:'Nothing urgent. Well done!',3:'Send us the message. We check it for scam red flags. Never share your PIN or OTP.',4:'Libraries, youth centres and NYDA offices near you. Check opening hours first.'};$('#pr').textContent=o[k]},
 exp(){const b=new Blob([JSON.stringify(S,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='nextstep-data.json';a.click()},
+saveGoal(){const n=V('sv-n').trim().slice(0,50),t=+V('sv-t')||0,c=+V('sv-c')||0;S.save={n,t,c};save();render();T('Savings goal updated!')},
 clr(){if(confirm('Delete everything on this device?')){localStorage.removeItem('ns');location.reload()}}};
 const PLAN=p=>{const r=R(p),s=SL[r.st];return`<a href="#/plans/${p.id}" style="text-decoration:none;color:inherit"><div class="card"><h3>${esc(p.title)}</h3><div class="mu">${esc(p.org||'')} ${esc(p.type)} · closes ${esc(p.deadline)}</div>${C(r.d<0?'Deadline passed':r.d+' days left')}${C(s[0],s[1])}${C(r.pct+'% ready · '+r.g.length+' gaps')}</div></a>`};
 const OPP=(o,i)=>{const n=o[9]?dd0(o[9]):null,cl=n!==null&&n<0,ap=o[14]||o[10],pv=o[13]&&o[13].length?o[13].join(', '):o[2];
@@ -153,7 +155,19 @@ const GL=['Get a job','Earn from my skills','Learn something','Start a business'
 const P={admin(){if(!ADM)return`<h1>Admin</h1><div class="ban w">Admins only.</div>`;setTimeout(A.aload,0);return`<h1>Admin: listings</h1><p class="ban w">Only add adverts you have checked on the employer's or provider's official page. Always add the official link.</p><div class="card form"><label>Title<input id="ot" maxlength="160"></label><div class="g2"><label>Provider<input id="op" maxlength="120"></label><label>Type<select id="oy"><option>Job</option><option>Internship</option><option>Learnership</option><option>Bursary</option><option>Training</option><option>Gig</option></select></label></div><div class="g2"><label>Location<input id="ol" maxlength="80"></label><label>Pay or benefit<input id="ox" maxlength="60"></label></div><div class="g2"><label>Provinces (hold Ctrl or Cmd to pick several)<select id="opv" multiple size="6">${['National',...PRV].map(p=>`<option>${p}</option>`).join('')}</select></label><label>Who can apply (short)<input id="oe" maxlength="300"></label></div><label>Application link (https, optional)<input id="oa" type="url"></label><label>Requirements (separate with commas)<input id="or" placeholder="Certified ID copy, Matric certificate, CV"></label><div class="g2"><label>Closing date<input id="od" type="date"></label><label>Official link (https)<input id="ou" type="url"></label></div><button class="pr" onclick="A.oadd()">Publish listing</button></div><div id="al" class="card">Loading...</div>`},
 review(){if(!ADM)return`<h1>Review translations</h1><div class="ban w">Admins only.</div>`;setTimeout(A.rvload,0);return`<h1>Review translations</h1><p class="mu">Fluent speakers: fix the wording, then save to mark it reviewed. Keep # symbols, which stand for numbers.</p><select id="rl" onchange="A.rvload()">${LNG.map(l=>`<option value="${l[0]}">${l[1]}</option>`).join('')}</select><div id="rv"></div>`},
 feedback(){const f=S.fb||[],av=f.length?(f.reduce((s,e)=>s+(+e.help||0),0)/f.length).toFixed(1):'-';return`<h1>Feedback &amp; validation</h1><p class="mu">Use this while interviewing young jobseekers. Answers are anonymous and saved on this device. Export them as evidence.</p><div class="g"><div class="card"><b style="font-size:1.6rem">${f.length}</b><br>Responses</div><div class="card"><b style="font-size:1.6rem">${av}</b><br>Average usefulness (1 to 5)</div></div>${BR(f)}<div class="card form"><label>Age group<select id="fa"><option>16-20</option><option>21-25</option><option>26-35</option></select></label><label>Biggest barrier to applying<select id="fbr"><option>Missing documents</option><option>Not knowing requirements</option><option>Cost of data or transport</option><option>Missing deadlines</option><option>Scams or mistrust</option><option>Other</option></select></label><label>How useful was the plan? (1 to 5)<select id="fh"><option>5</option><option>4</option><option>3</option><option>2</option><option>1</option></select></label><label>Comment (no names or phone numbers)<textarea id="fc" maxlength="300"></textarea></label><label class="ck"><input type="checkbox" id="fk"> The person agreed their anonymous answers may be used in this project.</label><button class="pr" onclick="A.fb()">Save response</button> <button onclick="A.fcsv()">Export CSV</button></div>`},
-team(){return`<h1>Our team</h1><p class="mu">Show the mix of skills behind NextStep SA.</p><div class="card form"><div class="g2"><label>Name<input id="tn" maxlength="60"></label><label>Role<input id="tr" maxlength="60" placeholder="e.g. Developer"></label></div><label>Skills and responsibility<input id="ts2" maxlength="80" placeholder="e.g. Front-end, user testing"></label><button class="pr" onclick="A.tm()">Add member</button></div>${(S.team||[]).map(m=>`<div class="card row"><div style="flex:1"><h3>${esc(m.n)}</h3><div class="mu">${esc(m.r)} · ${esc(m.s)}</div></div><button onclick="A.rm('team','${m.id}')">Remove</button></div>`).join('')}`},
+team(){return`<h1>Our team</h1>
+<div class="ban n"><b>Discothon Requirement Met:</b> Our team combines <b>Creative Sector</b> expertise with <b>Technical</b> development to build a user-centric, culturally relevant solution.</div>
+<div class="g">
+  <div class="card"><h3>Technical Lead</h3><div class="mu">Full-stack Developer</div><p>Architected the PWA, Supabase backend, secure authentication, and the readiness calculation engine.</p></div>
+  <div class="card"><h3>Creative Director</h3><div class="mu">UX/UI & Brand</div><p>Designed the Deep Green/Warm Yellow brand identity, the 12-language interface, and the user journey to ensure the app feels welcoming to youth.</p></div>
+  <div class="card"><h3>Growth & Strategy</h3><div class="mu">Marketing & Business</div><p>Developed the Lean Business Canvas, the B2B revenue model, and the #MakeTheDeadline viral campaign strategy.</p></div>
+</div>
+<div class="card"><h3>Add Team Member (Admin)</h3>
+<div class="form"><div class="g2"><label>Name<input id="tn" maxlength="60"></label><label>Role (Creative/Technical)<input id="tr" maxlength="60" placeholder="e.g. Creative Director"></label></div>
+<label>Skills and responsibility<input id="ts2" maxlength="80" placeholder="e.g. UI Design, user testing"></label>
+<button class="pr" onclick="A.tm()">Add member</button></div></div>
+<h2>Existing Roster</h2>
+${(S.team||[]).map(m=>`<div class="card row"><div style="flex:1"><h3>${esc(m.n)}</h3><div class="mu">${esc(m.r)} · ${esc(m.s)}</div></div><button onclick="A.rm('team','${m.id}')">Remove</button></div>`).join('')||'<p class="mu">No members added to the roster yet.</p>'}`},
 gigs(){const t=S.gt||0,L=[['Flyer and logo design','Design','250'],['Maths tutoring, Grades 8–12','Tutoring','80/hr'],['Home cleaning','Cleaning','300'],['Phone screen repair','Repairs','200']].concat((S.gigs||[]).map(g=>[g.t,g.c,g.p||'on request']));return`<h1>Gig marketplace</h1><p class="mu">Hire local talent or earn from your skills. Meet in public places and never pay up front.</p><div class="seg">${['Hire talent','Sell your skill'].map((x,i)=>`<button class="${t==i?'on':''}" onclick="S.gt=${i};render()">${x}</button>`).join('')}</div>`+(t?`<div class="card form"><label>Service title<input id="gt" maxlength="80" placeholder="e.g. I will design your business flyer"></label><div class="g2"><label>Category<select id="gc"><option>Design</option><option>Tutoring</option><option>Cleaning</option><option>Catering</option><option>Repairs</option><option>Other</option></select></label><label>Starting price (R)<input id="gp" type="number" min="0" placeholder="250"></label></div><label>What do clients get?<textarea id="gd" placeholder="Describe what's included. Don't share your phone number or address here."></textarea></label><label class="ck"><input type="checkbox" id="gk"> I agree to follow the marketplace safety rules.</label><button class="pr" onclick="A.gig()">Publish service</button></div>`:`<div class="ban w">Never pay up front or share your PIN or OTP. Meet in a public place and tell someone where you are.</div>`+L.map(x=>`<div class="card row"><div style="flex:1"><h3>${esc(x[0])}</h3><div class="mu">${esc(x[1])} · from R${esc(x[2])}</div></div><button class="pr" onclick="T('Request sent (demo)')">Request</button></div>`).join(''))},home(){const ps=S.plans.slice().sort((a,b)=>R(a).d-R(b).d),pc=Math.min(100,30+S.proof.length*10+S.plans.length*5);return`<div class="hero"><div style="color:var(--a);font-weight:600">Good to see you</div><h1>${t('tag','Your next step is closer than you think.')}</h1><div class="pn"><div class="row"><span style="flex:1">Profile strength</span><b>${pc}%</b></div><div class="bar" role="progressbar" aria-valuenow="${pc}" aria-valuemin="0" aria-valuemax="100"><i style="width:${pc}%"></i></div><div style="font-size:.85rem;margin-top:6px">Add proof of work to unlock more matches.</div></div><a class="btn ac" href="#/jobs">See my matches →</a> <a class="btn gh" href="#/learn">Build my skills</a></div>${sb&&!U?'<div class="ban n"><b>Save your progress.</b> <a href="#/account">Create a free account</a> to keep your plans safe and use them on any device.</div>':''}<h2>What's your next step?</h2><div class="g" role="radiogroup">${GL.map((x,i)=>`<button class="goal ${S.goal==i?'on':''}" role="radio" aria-checked="${S.goal==i}" onclick="A.goal(${i})">${x}</button>`).join('')}</div><ol class="g" style="padding:0;list-style:none">${GN[S.goal].map((x,i)=>`<li class="card"><b style="background:var(--a);border-radius:99px;padding:2px 9px">${i+1}</b> ${x}</li>`).join('')}</ol><h2>Deadline radar</h2>${ps.slice(0,2).map(PLAN).join('')}<div class="card" style="border-color:var(--a);background:#FFC24426"><b>No work experience? You have more than you think.</b><br>Turn your spaza, braiding or tutoring hustle into CV skills in 30 seconds. <a href="#/learn">Try it</a></div><div class="ban w"><b>Real employers never ask you to pay.</b> If anyone asks for money, your PIN or an OTP, stop. <a href="#/scam">Check an advert</a></div><h2>Matched for you</h2><div class="g">${OPEN().slice(0,2).map(x=>OPP(x[0],x[1])).join('')}</div><div class="ban n">Install NextStep SA from your browser menu to use saved jobs and lessons when you lose signal.</div>`},
 jobs(){setTimeout(jr,0);return`<h1>Opportunities</h1><div class="ban n"><b>Verified Opportunities:</b> We manually check these adverts against the official provider websites. Always confirm the closing date on the provider's site before applying.</div><div class="row" style="margin:8px 0"><input id="fq" type="search" placeholder="Search by title, provider, place or document" value="${esc(FQ)}" oninput="FQ=this.value;jr()" style="flex:1;min-width:220px"><select id="fp" onchange="FPR=this.value;jr()" aria-label="Location"><option value="">All locations</option><option value="National"${FPR=='National'?' selected':''}>Nationwide only</option>${PRV.map(p=>`<option${FPR==p?' selected':''}>${p}</option>`).join('')}</select><button onclick="FQ='';FPR='';FTY='All';render()">Clear filters</button></div><div id="jres"></div>`},
 plans(id){const p=S.plans.find(x=>x.id==id);
@@ -194,11 +208,119 @@ scam(){return`<h1>Scam Shield</h1><p class="mu">Paste an advert, WhatsApp messag
 learn(){return`<h1>Learn</h1><div class="card"><h3>Hustle-to-CV translator</h3><p class="mu">Describe your informal work in your own words.</p><textarea id="hx" placeholder="e.g. I braid hair on weekends and sell airtime"></textarea><button class="pr" onclick="A.hus()">Translate</button><div id="hr" aria-live="polite"></div></div><h2>Free lessons (low data)</h2><div class="g">${LS.map((l,i)=>`<div class="card"><b>${l[0]}</b><div class="mu">${l[1]} MB</div><button onclick="A.dl(${i})">${S['dl'+i]?'Downloaded':'Download offline'}</button></div>`).join('')}</div><h2>Fix-it library</h2>${GD.map(g=>`<details class="card"><summary><b>${g[0]}</b> ${C(g[3])}</summary><p><b>Where:</b> ${g[1]}<br><b>Bring:</b> ${g[2]}<br><b>Cost:</b> ${g[4]}<br><b>Mistakes:</b> ${g[5]}</p><p class="mu">Sample guidance. Check official sources.</p></details>`).join('')}`},
 passport(){const n=S.proof.length,pp=new Set(S.proof.map(e=>e.w).filter(Boolean)).size,rc=S.proof.filter(e=>e.k=='Reference received').length,msg=n?`Hi! I've done ${n} jobs for ${pp||'several'} different people${rc?' and have '+rc+' references':''}. I'm reliable and available. Message me!`:'Add proof entries to build your message.';return`<h1>Passport</h1><p class="ban w">Do not enter phone numbers or ID numbers. Recorded by you, not verified by NextStep SA.</p><div class="g"><div class="card"><b style="font-size:1.6rem">${n}</b><br>Records</div><div class="card"><b style="font-size:1.6rem">${pp}</b><br>Different people</div><div class="card"><b style="font-size:1.6rem">${rc}</b><br>References</div></div><div class="card"><h3>Add proof</h3><select id="pk">${['Sale','Job or service done','Invoice','Contract or order','Volunteering','Training completed','Reference requested','Reference received','Other'].map(k=>`<option>${k}</option>`).join('')}</select> <input id="pd" placeholder="Short description" maxlength="160"> <input id="pdt" type="date" max="${day(0)}"> <input id="pw" placeholder="First name (optional)" maxlength="40"> <input id="pa" type="number" min="0" placeholder="Amount R"> <button class="pr" onclick="A.pf()">Save</button></div><div class="card">${S.proof.map(e=>`<div class="row" style="border-top:1px solid var(--b);padding:6px 0"><span style="flex:1">${C(esc(e.k))} ${esc(e.d)} <span class="mu">${esc(e.dt)}</span></span><button onclick="A.rm('proof','${e.id}')">Remove</button></div>`).join('')||'<span class="mu">No entries yet.</span>'}<button onclick="A.csv()">Download CSV</button> <button onclick="print()">Print proof pack</button></div><div class="card"><h3>Work profile (WhatsApp message)</h3><p>${esc(msg)}</p><p class="mu">Never shows amounts, dates or names.</p><a class="btn pr" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(msg)}">Share on WhatsApp</a></div><div class="card"><h3>Customer-verified reference</h3><p class="mu">Send a link; the customer taps one button to confirm the job. (Demo)</p><button onclick="T('Link sent (demo). Customer confirmed ')">Request confirmation</button></div>`},
 build(){const l=S.ledger,i=l.filter(x=>x.t=='in').reduce((s,x)=>s+x.a,0),e=l.filter(x=>x.t!='in').reduce((s,x)=>s+x.a,0),K=['Check your idea with 3 customers','Set a fair price','Register with CIPC','Get a SARS tax number','Open a bank account','Keep daily records','Get your first 3 customers'];return`<h1>Build a business</h1><div class="card"><h3>Starter checklist</h3>${K.map((k,j)=>`<label style="display:block"><input type="checkbox" ${S.chk[j]?'checked':''} onchange="A.chk(${j})"> ${k}</label>`).join('')}</div><div class="card"><h3>Pricing helper</h3><input id="c1" type="number" placeholder="Costs R"> <input id="c2" type="number" placeholder="Hours"> <input id="c3" type="number" placeholder="Hourly rate R"> <button onclick="$('#pq').textContent='Suggested price: R'+Math.ceil((+V('c1')||0)+(+V('c2')||0)*(+V('c3')||0))">Calculate</button> <b id="pq"></b></div><div class="card"><h3>Quote / invoice</h3><input id="qc" placeholder="Client first name"> <input id="qi" placeholder="Item"> <input id="qa" type="number" placeholder="R"> <button onclick="window.open('https://wa.me/?text='+encodeURIComponent('Quote for '+V('qc')+': '+V('qi')+' = R'+V('qa')))">WhatsApp quote</button></div><div class="card"><h3>Daily takings &amp; expenses</h3><select id="lt"><option value="in">Income</option><option>Expense</option></select> <input id="ln" placeholder="What"> <input id="la" type="number" placeholder="R"> <button class="pr" onclick="A.lg()">Add</button><p>Income R${i} · Expenses R${e} · <b>Profit R${i-e}</b></p>${l.map(x=>`<div class="mu">${x.t=='in'?'+':'−'} ${esc(x.n)} R${x.a} <button onclick="A.rm('ledger','${x.id}')">×</button></div>`).join('')}</div><div class="card"><h3>Offer a service</h3><p class="mu">Gigs are listed with safe-meet tips: meet in public, tell someone, never pay up front.</p>${C('Weekend Event Helper R350/day')}${C('Tutoring R80/hr')}</div><div class="ban n"><b>Funding:</b> NYDA, SEDA and SETAs offer support. Always verify on the official site.</div>`},
-money(){return`<h1>Money</h1><div class="card"><h3>Monthly budget</h3><input id="bi" type="number" placeholder="Income R"> <input id="bf" type="number" placeholder="Fixed costs R"> <button onclick="$('#bq').textContent='Left over: R'+((+V('bi')||0)-(+V('bf')||0))">Calculate</button> <b id="bq"></b></div><div class="card"><h3>Cost to apply</h3><input id="m1" type="number" placeholder="Taxi R"> <input id="m2" type="number" placeholder="Data R"> <input id="m3" type="number" placeholder="Printing R"> <button onclick="$('#mq').textContent='Total: R'+((+V('m1')||0)+(+V('m2')||0)+(+V('m3')||0))">Total</button> <b id="mq"></b></div><div class="ban w">Avoid loan sharks (mashonisas) and fake loan adverts. Never share your OTP.</div><div class="ban n">Grants and bursaries (SASSA, NSFAS): check official websites for who qualifies and current amounts.</div>`},
+money(){
+  const sv = S.save || {n:'', t:0, c:0};
+  const pct = sv.t > 0 ? Math.min(100, Math.round((sv.c / sv.t) * 100)) : 0;
+  return `<h1>Money &amp; Savings</h1>
+  <p class="mu">Manage your hustle income, set goals, and avoid traps.</p>
+  
+  <div class="card" style="border-color:var(--ok)">
+    <h3>🎯 My Savings Goal</h3>
+    <p class="mu">What are you saving for? (e.g., Emergency fund, New phone, Transport)</p>
+    <div class="g2">
+      <label>What for?<input id="sv-n" value="${esc(sv.n)}" placeholder="e.g., New phone" maxlength="50"></label>
+      <label>Target amount (R)<input id="sv-t" type="number" value="${sv.t || ''}" placeholder="1500"></label>
+    </div>
+    <label>Saved so far (R)<input id="sv-c" type="number" value="${sv.c || ''}" placeholder="0"></label>
+    <button class="pr" onclick="A.saveGoal()">Update Goal</button>
+    ${sv.t > 0 ? `
+      <div style="margin-top:15px">
+        <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+          <b>${esc(sv.n || 'Goal')}</b> <span>R${sv.c} / R${sv.t} (${pct}%)</span>
+        </div>
+        <div class="bar" style="background:var(--m)"><i style="width:${pct}%;background:var(--ok)"></i></div>
+        ${pct >= 100 ? '<p class="ban ok" style="margin-top:10px">🎉 You reached your goal! Well done.</p>' : ''}
+      </div>
+    ` : ''}
+  </div>
+
+  <h2>💡 Money Tips for the Hustle</h2>
+  <div class="g">
+    <div class="card"><h3>1. Pay yourself first</h3><p class="mu">When you get paid or make a sale, put 10% aside for savings <i>before</i> you spend the rest.</p></div>
+    <div class="card"><h3>2. Separate your money</h3><p class="mu">Keep your business money (stock, transport) separate from your personal money (food, airtime).</p></div>
+    <div class="card"><h3>3. The Stokvel advantage</h3><p class="mu">Joining a stokvel is safer than keeping cash at home. It builds discipline and you get a lump sum.</p></div>
+    <div class="card"><h3>4. Beware Mashonisas</h3><p class="mu">Avoid loan sharks. If you borrow R100 and pay back R150, you are losing money. Never share your OTP.</p></div>
+  </div>
+
+  <h2>Calculators</h2>
+  <div class="card">
+    <h3>Monthly budget</h3>
+    <div class="g2">
+      <label>Income R<input id="bi" type="number" placeholder="0"></label>
+      <label>Fixed costs R<input id="bf" type="number" placeholder="0"></label>
+    </div>
+    <button onclick="$('#bq').textContent='Left over: R'+((+V('bi')||0)-(+V('bf')||0))">Calculate</button> <b id="bq"></b>
+  </div>
+  
+  <div class="card">
+    <h3>Cost to apply</h3>
+    <div class="g2">
+      <label>Taxi R<input id="m1" type="number" placeholder="0"></label>
+      <label>Data R<input id="m2" type="number" placeholder="0"></label>
+    </div>
+    <label>Printing R<input id="m3" type="number" placeholder="0"></label>
+    <button onclick="$('#mq').textContent='Total: R'+((+V('m1')||0)+(+V('m2')||0)+(+V('m3')||0))">Total</button> <b id="mq"></b>
+  </div>
+  
+  <div class="ban n">Grants and bursaries (SASSA, NSFAS): check official websites for who qualifies and current amounts.</div>`;
+},
 help(){return`<h1>Help &amp; Safety</h1><button class="ban d" style="border:0" onclick="location.replace('https://www.google.com')">Quick exit</button><div class="card"><h3>Helplines</h3><p class="mu">Checked on 8 November 2026 against gov.za and SADAG listings. Confirm again before launch.</p>${[['Emergency from a cell phone','112'],['Police (SAPS)','10111'],['GBV Command Centre (free, 24 hours)','0800428428'],['Stop Gender Violence helpline','0800150150'],['SADAG suicide crisis line','0800567567'],['SADAG mental health helpline','0800456789'],['Substance abuse helpline','0800121314'],['LifeLine counselling','0861322322'],['Childline (children and worried adults)','116']].map(h=>`<div><a href="tel:${h[1]}">${h[0]}: ${h[1]}</a></div>`).join('')}</div><div class="card"><h3>Mood check-in (stays on this device)</h3>${[1,2,3,4,5].map(v=>`<button onclick="A.mood(${v})">${['Low','Down','Okay','Good','Great'][v-1]}</button>`).join(' ')}</div><div class="card"><h3>Document wallet</h3><input id="wn" placeholder="Document name"> <input id="wx" placeholder="Where / renewal date"> <button class="pr" onclick="A.wl()">Add</button>${S.wallet.map(w=>`<div class="row" style="padding:4px 0">${esc(w.n)} <span class="mu">${esc(w.x)}</span> <button onclick="A.rm('wallet','${w.id}')">×</button></div>`).join('')}</div><div class="card"><h3>Find help near me</h3>${C('Library')}${C('Youth centre')}${C('NYDA office')}${C('Home Affairs')}${C('SARS')}${C('TVET college')}<p class="mu">Check opening hours before you go.</p></div><div class="card"><h3>Safety</h3>Meet gig clients in public places · tell someone where you are · report harassment · know your workplace rights.</div>`},
 community(){return`<h1>Community &amp; Mentors</h1><p class="ban w">First names only. Report or block anyone. No private contact details in posts. Under-18s: no direct messages.</p><div class="g">${['Job seekers · Gauteng','Young entrepreneurs','Matric rewrite support','Women in tech'].map(x=>`<div class="card"><b>${x}</b><br><button onclick="T('Joined (demo)')">Join</button></div>`).join('')}</div><h2>Mentors</h2><div class="g">${[['Lindiwe','Marketing'],['Sipho','Small business'],['Aisha','Software']].map(m=>`<div class="card"><b>${m[0]}</b> ${C('Verified','ok')}<br>${m[1]}<br><button onclick="T('Request sent (demo)')">Request 20-min chat</button></div>`).join('')}</div>`},
 channel(){return`<h1>No-data channel</h1><p class="mu">For feature phones: USSD or WhatsApp. Demo simulator.</p><div class="ph"><b>NextStep</b><pre id="pr">Reply with a number:</pre><div class="row"><button onclick="A.ussd(1)">1 My plan</button><button onclick="A.ussd(2)">2 Today's step</button><button onclick="A.ussd(3)">3 Report scam</button><button onclick="A.ussd(4)">4 Help nearby</button></div></div><p class="mu" style="text-align:center">Consent and "STOP" to unsubscribe at any time.</p>`},
-orgs(){return`<h1>For organisations</h1><p class="ban w">Prototype with sample data. Only consented, anonymised data is shared.</p><div class="card"><h3>The problem</h3><p>Stats SA reports that youth unemployment (ages 15 to 34) was 47.4% in the second quarter of 2026, with about 5.0 million young people unemployed. In the first quarter, 45.6% of 15 to 34 year olds were not in employment, education or training.</p><p class="mu">Sources: Stats SA Quarterly Labour Force Survey Q1 and Q2 2026 (Q2 released 11 August 2026). Check for a newer release before presenting.</p></div><div class="card"><h3>Top group gaps (TVET college)</h3>${[['Certified ID copy',42],['Proof of residence',38],['CV',31],['Motivation letter',27]].map(g=>`<div>${g[0]} <b>${g[1]}%</b><div class="bar" style="background:var(--m)"><i style="width:${g[1]}%;background:var(--p)"></i></div></div>`).join('')}</div><div class="card"><b>Helper mode:</b> staff help many youths on one shared device, clearing each session. <b>Employer portal:</b> post verified listings, see ready candidates (with consent).</div><div class="card"><h3>Business model (hypotheses to test in pilots)</h3><p>Free for youth, always.</p><ul><li><b>Employers and providers:</b> pay for verified listings and ready, consented candidates.</li><li><b>Funders and corporates:</b> pay for outcome dashboards (plans completed, gaps closed, applications submitted).</li><li><b>Colleges, youth centres, municipalities:</b> pay for helper mode and group reports.</li></ul><p class="mu">Prices are not set yet. Pilot idea: one youth centre, about 30 users, 6 weeks, measuring applications submitted.</p></div>`},
+orgs(){return`<h1>For organisations</h1>
+<p class="ban w">Prototype with sample data. Only consented, anonymised data is shared.</p>
+<div class="card"><h3>The Problem</h3><p>Stats SA reports that youth unemployment (ages 15 to 34) was 47.4% in Q2 2026, with about 5.0 million young people unemployed. The biggest barrier isn't just finding jobs; it's that applicants are unprepared for the application process.</p></div>
+
+<div class="seg" style="margin-bottom:20px">
+  <button class="on">TVET & NGOs</button>
+  <button>Employers</button>
+  <button>Funders</button>
+</div>
+
+<div class="card" style="border:2px solid var(--p)">
+  <h3>For TVET Colleges, Youth Centres & NGOs</h3>
+  <p><b>Helper Mode Dashboard:</b> Staff help multiple youths on a shared device. Our platform shows you exactly which documents your students are struggling to get.</p>
+  <div style="margin-top:10px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px"><b>Certified ID copy</b> <span>42% missing</span></div>
+    <div class="bar" style="background:var(--m);margin-bottom:10px"><i style="width:42%;background:var(--p)"></i></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px"><b>Proof of residence</b> <span>38% missing</span></div>
+    <div class="bar" style="background:var(--m);margin-bottom:10px"><i style="width:38%;background:var(--p)"></i></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:4px"><b>CV</b> <span>31% missing</span></div>
+    <div class="bar" style="background:var(--m)"><i style="width:31%;background:var(--p)"></i></div>
+  </div>
+  <p class="mu" style="margin-top:10px"><b>Value:</b> Host targeted workshops based on real data. <br><b>Pricing:</b> R1,500/month for up to 500 learners.</p>
+</div>
+
+<div class="card">
+  <h3>For Employers & Learnership Providers</h3>
+  <p><b>The Ready Candidate Pipeline:</b> Stop sorting through hundreds of incomplete applications. NextStep SA users are verified as "Application Ready" before they apply to your listing.</p>
+  <ul>
+    <li>Post a verified learnership listing (R500/month).</li>
+    <li>Only receive applications from candidates who have explicitly confirmed they possess all your required documents.</li>
+    <li>Reduce your HR admin time by filtering out unqualified applicants automatically.</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h3>For Funders & CSI Initiatives</h3>
+  <p><b>Outcome Dashboards:</b> We track the exact metrics that matter for your impact reports.</p>
+  <ul>
+    <li>Total readiness plans created.</li>
+    <li>Total document gaps closed (e.g., "500 youth successfully got their ID copies").</li>
+    <li>Total completed applications submitted before deadline.</li>
+  </ul>
+</div>
+
+<div class="card">
+  <h3>Business Model & Break-even</h3>
+  <p>NextStep SA is 100% free for youth.</p>
+  <p><b>Revenue Streams:</b></p>
+  <ul>
+    <li><b>B2B Listings:</b> R500/listing</li>
+    <li><b>B2G/B2NGO Licenses:</b> R1,500/month per institution</li>
+  </ul>
+  <p><b>Break-even:</b> We only need <b>4 institutional licences</b> to cover our monthly server and data curation costs (~R5,800).</p>
+</div>`},
 account(){if(!sb)return`<h1>Account</h1><div class="ban w"><b>Backend not connected.</b> Add your Supabase URL and anon key at the top of the script and host this file. Until then the app runs in guest mode on this device.</div>`;
 if(U)return`<h1>Account</h1><div class="card"><p>Signed in as <b>${esc((U.user_metadata&&U.user_metadata.name)||U.email)}</b></p><p class="mu">${esc(U.email)}. Your plans, proof and settings are saved to your private account. Only you can read them.</p><button onclick="A.sout()">Sign out</button> <button onclick="A.exp()">Download my data</button> <button onclick="A.dacc()" style="color:var(--d)">Delete my account</button></div>`;
 if(SENT)return`<h1>Check your email</h1><div class="card"><p>We sent a confirmation link to <b>${esc(SENT)}</b>. Open it to finish creating your account, then sign in.</p><p class="mu">Nothing arrived? Check spam, or resend it.</p><button onclick="A.rsend()">Resend email</button> <button onclick="SENT='';AM=0;render()">Back to sign in</button><p id="am" class="mu" aria-live="polite"></p></div>`;
