@@ -98,10 +98,11 @@ Mobile-first layout, large tap targets, labelled form fields, aria-live messages
 Real, regularly checked listings; SMS and WhatsApp reminders; USSD with a telecom partner; zero-rated access; helper mode for libraries and youth centres; employer portal; pilot with a youth centre or TVET college.
 
 ## Team
-[Add names, roles and skills.]
+Ofentse Rasekhula
 
 ## License
-[Choose a license, for example MIT, and add a `LICENSE` file.]
+MIT LICENSE
 
 ## Contact
-[Add a contact email.]
+ofentserasekhula8@gmail.com
+
