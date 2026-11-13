@@ -40,9 +40,10 @@ button,.btn{cursor:pointer;text-decoration:none;display:inline-block;font-weight
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
 const $=s=>document.querySelector(s),esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-let S={plans:[],proof:[],wallet:[],ledger:[],chk:[],mood:[],goal:0,low:0,rep:[],save:{n:'',t:0,c:0}};
+let S={plans:[],proof:[],wallet:[],ledger:[],chk:[],mood:[],goal:0,low:0,rep:[],save:{n:'',t:0,c:0},orgTab:'tvet'};
 try{Object.assign(S,JSON.parse(localStorage.ns||'{}'))}catch(e){}
 if(!S.save) S.save={n:'',t:0,c:0};
+if(!S.orgTab) S.orgTab='tvet';
 let D2={};try{D2=JSON.parse(localStorage.nsX||'{}')}catch(e){}
 const XN=665;
 const ORG={name:'NextStep SA (Demo Project)',address:'Cape Town, South Africa',officer:'Project Lead',email:'privacy@nextstep.example',region:'AWS eu-west-1 (Ireland)'};
@@ -267,60 +268,66 @@ money(){
 help(){return`<h1>Help &amp; Safety</h1><button class="ban d" style="border:0" onclick="location.replace('https://www.google.com')">Quick exit</button><div class="card"><h3>Helplines</h3><p class="mu">Checked on 8 November 2026 against gov.za and SADAG listings. Confirm again before launch.</p>${[['Emergency from a cell phone','112'],['Police (SAPS)','10111'],['GBV Command Centre (free, 24 hours)','0800428428'],['Stop Gender Violence helpline','0800150150'],['SADAG suicide crisis line','0800567567'],['SADAG mental health helpline','0800456789'],['Substance abuse helpline','0800121314'],['LifeLine counselling','0861322322'],['Childline (children and worried adults)','116']].map(h=>`<div><a href="tel:${h[1]}">${h[0]}: ${h[1]}</a></div>`).join('')}</div><div class="card"><h3>Mood check-in (stays on this device)</h3>${[1,2,3,4,5].map(v=>`<button onclick="A.mood(${v})">${['Low','Down','Okay','Good','Great'][v-1]}</button>`).join(' ')}</div><div class="card"><h3>Document wallet</h3><input id="wn" placeholder="Document name"> <input id="wx" placeholder="Where / renewal date"> <button class="pr" onclick="A.wl()">Add</button>${S.wallet.map(w=>`<div class="row" style="padding:4px 0">${esc(w.n)} <span class="mu">${esc(w.x)}</span> <button onclick="A.rm('wallet','${w.id}')">×</button></div>`).join('')}</div><div class="card"><h3>Find help near me</h3>${C('Library')}${C('Youth centre')}${C('NYDA office')}${C('Home Affairs')}${C('SARS')}${C('TVET college')}<p class="mu">Check opening hours before you go.</p></div><div class="card"><h3>Safety</h3>Meet gig clients in public places · tell someone where you are · report harassment · know your workplace rights.</div>`},
 community(){return`<h1>Community &amp; Mentors</h1><p class="ban w">First names only. Report or block anyone. No private contact details in posts. Under-18s: no direct messages.</p><div class="g">${['Job seekers · Gauteng','Young entrepreneurs','Matric rewrite support','Women in tech'].map(x=>`<div class="card"><b>${x}</b><br><button onclick="T('Joined (demo)')">Join</button></div>`).join('')}</div><h2>Mentors</h2><div class="g">${[['Lindiwe','Marketing'],['Sipho','Small business'],['Aisha','Software']].map(m=>`<div class="card"><b>${m[0]}</b> ${C('Verified','ok')}<br>${m[1]}<br><button onclick="T('Request sent (demo)')">Request 20-min chat</button></div>`).join('')}</div>`},
 channel(){return`<h1>No-data channel</h1><p class="mu">For feature phones: USSD or WhatsApp. Demo simulator.</p><div class="ph"><b>NextStep</b><pre id="pr">Reply with a number:</pre><div class="row"><button onclick="A.ussd(1)">1 My plan</button><button onclick="A.ussd(2)">2 Today's step</button><button onclick="A.ussd(3)">3 Report scam</button><button onclick="A.ussd(4)">4 Help nearby</button></div></div><p class="mu" style="text-align:center">Consent and "STOP" to unsubscribe at any time.</p>`},
-orgs(){return`<h1>For organisations</h1>
-<p class="ban w">Prototype with sample data. Only consented, anonymised data is shared.</p>
-<div class="card"><h3>The Problem</h3><p>Stats SA reports that youth unemployment (ages 15 to 34) was 47.4% in Q2 2026, with about 5.0 million young people unemployed. The biggest barrier isn't just finding jobs; it's that applicants are unprepared for the application process.</p></div>
+orgs(){
+  const tab = S.orgTab || 'tvet';
+  return `<h1>For organisations</h1>
+  <p class="ban w">Prototype with sample data. Only consented, anonymised data is shared.</p>
+  <div class="card"><h3>The Problem</h3><p>Stats SA reports that youth unemployment (ages 15 to 34) was 47.4% in Q2 2026, with about 5.0 million young people unemployed. The biggest barrier isn't just finding jobs; it's that applicants are unprepared for the application process.</p></div>
 
-<div class="seg" style="margin-bottom:20px">
-  <button class="on">TVET & NGOs</button>
-  <button>Employers</button>
-  <button>Funders</button>
-</div>
-
-<div class="card" style="border:2px solid var(--p)">
-  <h3>For TVET Colleges, Youth Centres & NGOs</h3>
-  <p><b>Helper Mode Dashboard:</b> Staff help multiple youths on a shared device. Our platform shows you exactly which documents your students are struggling to get.</p>
-  <div style="margin-top:10px">
-    <div style="display:flex;justify-content:space-between;margin-bottom:4px"><b>Certified ID copy</b> <span>42% missing</span></div>
-    <div class="bar" style="background:var(--m);margin-bottom:10px"><i style="width:42%;background:var(--p)"></i></div>
-    <div style="display:flex;justify-content:space-between;margin-bottom:4px"><b>Proof of residence</b> <span>38% missing</span></div>
-    <div class="bar" style="background:var(--m);margin-bottom:10px"><i style="width:38%;background:var(--p)"></i></div>
-    <div style="display:flex;justify-content:space-between;margin-bottom:4px"><b>CV</b> <span>31% missing</span></div>
-    <div class="bar" style="background:var(--m)"><i style="width:31%;background:var(--p)"></i></div>
+  <div class="seg" style="margin-bottom:20px">
+    <button class="${tab=='tvet'?'on':''}" onclick="S.orgTab='tvet';save();render()">TVET & NGOs</button>
+    <button class="${tab=='employers'?'on':''}" onclick="S.orgTab='employers';save();render()">Employers</button>
+    <button class="${tab=='funders'?'on':''}" onclick="S.orgTab='funders';save();render()">Funders</button>
   </div>
-  <p class="mu" style="margin-top:10px"><b>Value:</b> Host targeted workshops based on real data. <br><b>Pricing:</b> R1,500/month for up to 500 learners.</p>
-</div>
 
-<div class="card">
-  <h3>For Employers & Learnership Providers</h3>
-  <p><b>The Ready Candidate Pipeline:</b> Stop sorting through hundreds of incomplete applications. NextStep SA users are verified as "Application Ready" before they apply to your listing.</p>
-  <ul>
-    <li>Post a verified learnership listing (R500/month).</li>
-    <li>Only receive applications from candidates who have explicitly confirmed they possess all your required documents.</li>
-    <li>Reduce your HR admin time by filtering out unqualified applicants automatically.</li>
-  </ul>
-</div>
+  ${tab == 'tvet' ? `
+  <div class="card" style="border:2px solid var(--p)">
+    <h3>For TVET Colleges, Youth Centres & NGOs</h3>
+    <p><b>Helper Mode Dashboard:</b> Staff help multiple youths on a shared device. Our platform shows you exactly which documents your students are struggling to get.</p>
+    <div style="margin-top:10px">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px"><b>Certified ID copy</b> <span>42% missing</span></div>
+      <div class="bar" style="background:var(--m);margin-bottom:10px"><i style="width:42%;background:var(--p)"></i></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px"><b>Proof of residence</b> <span>38% missing</span></div>
+      <div class="bar" style="background:var(--m);margin-bottom:10px"><i style="width:38%;background:var(--p)"></i></div>
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px"><b>CV</b> <span>31% missing</span></div>
+      <div class="bar" style="background:var(--m)"><i style="width:31%;background:var(--p)"></i></div>
+    </div>
+    <p class="mu" style="margin-top:10px"><b>Value:</b> Host targeted workshops based on real data. <br><b>Pricing:</b> R1,500/month for up to 500 learners.</p>
+  </div>` : ''}
 
-<div class="card">
-  <h3>For Funders & CSI Initiatives</h3>
-  <p><b>Outcome Dashboards:</b> We track the exact metrics that matter for your impact reports.</p>
-  <ul>
-    <li>Total readiness plans created.</li>
-    <li>Total document gaps closed (e.g., "500 youth successfully got their ID copies").</li>
-    <li>Total completed applications submitted before deadline.</li>
-  </ul>
-</div>
+  ${tab == 'employers' ? `
+  <div class="card" style="border:2px solid var(--p)">
+    <h3>For Employers & Learnership Providers</h3>
+    <p><b>The Ready Candidate Pipeline:</b> Stop sorting through hundreds of incomplete applications. NextStep SA users are verified as "Application Ready" before they apply to your listing.</p>
+    <ul>
+      <li>Post a verified learnership listing (R500/month).</li>
+      <li>Only receive applications from candidates who have explicitly confirmed they possess all your required documents.</li>
+      <li>Reduce your HR admin time by filtering out unqualified applicants automatically.</li>
+    </ul>
+  </div>` : ''}
 
-<div class="card">
-  <h3>Business Model & Break-even</h3>
-  <p>NextStep SA is 100% free for youth.</p>
-  <p><b>Revenue Streams:</b></p>
-  <ul>
-    <li><b>B2B Listings:</b> R500/listing</li>
-    <li><b>B2G/B2NGO Licenses:</b> R1,500/month per institution</li>
-  </ul>
-  <p><b>Break-even:</b> We only need <b>4 institutional licences</b> to cover our monthly server and data curation costs (~R5,800).</p>
-</div>`},
+  ${tab == 'funders' ? `
+  <div class="card" style="border:2px solid var(--p)">
+    <h3>For Funders & CSI Initiatives</h3>
+    <p><b>Outcome Dashboards:</b> We track the exact metrics that matter for your impact reports.</p>
+    <ul>
+      <li>Total readiness plans created.</li>
+      <li>Total document gaps closed (e.g., "500 youth successfully got their ID copies").</li>
+      <li>Total completed applications submitted before deadline.</li>
+    </ul>
+  </div>` : ''}
+
+  <div class="card">
+    <h3>Business Model & Break-even</h3>
+    <p>NextStep SA is 100% free for youth.</p>
+    <p><b>Revenue Streams:</b></p>
+    <ul>
+      <li><b>B2B Listings:</b> R500/listing</li>
+      <li><b>B2G/B2NGO Licenses:</b> R1,500/month per institution</li>
+    </ul>
+    <p><b>Break-even:</b> We only need <b>4 institutional licences</b> to cover our monthly server and data curation costs (~R5,800).</p>
+  </div>`;
+},
 account(){if(!sb)return`<h1>Account</h1><div class="ban w"><b>Backend not connected.</b> Add your Supabase URL and anon key at the top of the script and host this file. Until then the app runs in guest mode on this device.</div>`;
 if(U)return`<h1>Account</h1><div class="card"><p>Signed in as <b>${esc((U.user_metadata&&U.user_metadata.name)||U.email)}</b></p><p class="mu">${esc(U.email)}. Your plans, proof and settings are saved to your private account. Only you can read them.</p><button onclick="A.sout()">Sign out</button> <button onclick="A.exp()">Download my data</button> <button onclick="A.dacc()" style="color:var(--d)">Delete my account</button></div>`;
 if(SENT)return`<h1>Check your email</h1><div class="card"><p>We sent a confirmation link to <b>${esc(SENT)}</b>. Open it to finish creating your account, then sign in.</p><p class="mu">Nothing arrived? Check spam, or resend it.</p><button onclick="A.rsend()">Resend email</button> <button onclick="SENT='';AM=0;render()">Back to sign in</button><p id="am" class="mu" aria-live="polite"></p></div>`;
